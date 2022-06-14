@@ -19,6 +19,9 @@ mlflow
 s3fs
 gcsfs
 google-cloud-storage
+google-cloud-vision
 termcolor
 fastapi
 uvicorn
+jarowinkler
+python-multipart
