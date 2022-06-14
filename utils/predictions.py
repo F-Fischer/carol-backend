@@ -7,7 +7,6 @@ def get_dataframe():
     return df
 
 def get_prob_value(target,columna,thr,droga):
-
     med = get_dataframe()
     sims =[]
     method= jarowinkler_similarity
@@ -19,30 +18,57 @@ def get_prob_value(target,columna,thr,droga):
     for word in vocab:
         sims.append(method(target, word))
     if np.max(sims) > thr:
-        return vocab[np.argmax(sims)]
+        return vocab[np.argmax(sims)] ,np.max(sims)
     else:
-        return "error"
+        return "error" , 0
 
 def predict(target):
+    med = get_dataframe()
+    droga_list = []
+    gramaje_list = []
+    unidad_list =[]
     final_list = []
     for w in target:
-        droga_pred= get_prob_value(w.lower() ,'Principio activo',0.8,"error")
-        if droga_pred != "error":
-            gramaje_pred= get_prob_value(w.lower(),'Potencia',0.7,droga_pred)
-            if gramaje_pred != "error":
-                unidad_pred= get_prob_value(w.lower(),'Unidad de potencia',0.7,droga_pred)
-            else:
-                unidad_pred = "error"
-            if droga_pred != "error":
-                final_list.append(droga_pred)
-            if gramaje_pred != "error":
-                final_list.append(gramaje_pred)
-            if unidad_pred != "error":
-                final_list.append(unidad_pred)
+        droga_pred=get_prob_value(w.lower() ,'Principio activo',0.81,"error")
+        if droga_pred[0] != "error":
+            droga_list.append(droga_pred)
+    if len(droga_list)==0:
+        droga_select = "error"
+    else:
+        droga_select=max(droga_list,key=lambda item:item[1])[0]
 
-    if gramaje_pred == "error":
-        final_list.append(" ")
-    if unidad_pred == "error":
-        final_list.append(" ")
+    if droga_select != "error":
+        final_list.append(droga_select)
+
+        for w in target:
+            gramaje_pred= get_prob_value(w.lower(),'Potencia',0.7,droga_select)
+            if gramaje_pred[0] != "error":
+                gramaje_list.append(gramaje_pred)
+
+        if len(gramaje_list)==0:
+            gramaje_select = "error"
+        else:
+            gramaje_select=max(gramaje_list,key=lambda item:item[1])[0]
+
+        if gramaje_select != "error":
+            final_list.append(gramaje_select)
+
+#            for w in target:
+#                unidad_pred= get_prob_value(w.lower(),'Unidad de potencia',0.7,droga_select)
+#                if unidad_pred[0] != "error":
+#                    unidad_list.append(unidad_pred)
+#
+#            if len(unidad_list)==0:
+#                unidad_select = "error"
+#            else:
+#                unidad_select=max(unidad_list,key=lambda item:item[1])[0]
+#
+#            if unidad_select != "error":
+#                final_list.append(unidad_select)
+#            else:
+
+        if droga_select != "error" and gramaje_select != "error":
+                unidad_select=med[(med["Principio activo"]==droga_select)&(med["Potencia"]==gramaje_select)]["Unidad de potencia"].iloc[0]
+                final_list.append(unidad_select)
 
     return final_list
