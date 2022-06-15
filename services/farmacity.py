@@ -19,13 +19,15 @@ def get_products(predictions):
     ids = []
     description = []
     labs = []
+    formula = []
 
     for drug in response.json():
         prices.append(drug['publicPrice'])
         #ids.append(drug['id'])
         description.append(drug['description'])
         labs.append(drug['medicalLaboratory']['abbreviation'])
+        formula.append(drug['formula']['description'])
 
-    df = pd.DataFrame(list(zip(description, labs, prices)), columns =['description', 'lab', 'prices'])
+    df = pd.DataFrame(list(zip(description, labs, prices, formula)), columns =['description', 'lab', 'prices', 'formula'])
 
     return df
